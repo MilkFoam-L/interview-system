@@ -15,8 +15,8 @@ import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
 /**
- * 星火X1代码判题客户端
- * 使用星火X1开放API进行代码判题
+ * 星火X1.5代码判题客户端
+ * 使用星火X1.5开放API进行代码判题
  */
 @Component
 public class SparkX1CodeJudgeClient {
@@ -47,7 +47,7 @@ public class SparkX1CodeJudgeClient {
             // 构建提示词
             String prompt = buildCodeJudgePrompt(request);
             
-            // 发送请求到星火X1
+            // 发送请求到星火X1.5
             String response = callSparkX1API(prompt);
             
             // 解析结果
@@ -75,7 +75,7 @@ public class SparkX1CodeJudgeClient {
             // 构建简化提示词
             String prompt = buildSimpleCodeJudgePrompt(problemDescription, userCode, language);
             
-            // 发送请求到星火X1
+            // 发送请求到星火X1.5
             String response = callSparkX1API(prompt);
             
             // 解析结果
@@ -92,26 +92,25 @@ public class SparkX1CodeJudgeClient {
     }
     
     /**
-     * 调用星火X1开放API
+     * 调用星火X1.5开放API
      */
     private String callSparkX1API(String prompt) throws IOException {
         // 构建请求体
         JSONObject jsonObject = new JSONObject();
-        jsonObject.put("user", "interview_system_user");
         jsonObject.put("model", config.getModel());
         jsonObject.put("stream", false);
         jsonObject.put("max_tokens", config.getMaxTokens());
-        
+        jsonObject.put("temperature", config.getTemperature());
+
         // 创建消息数组
         JSONArray messagesArray = new JSONArray();
         JSONObject messageObject = new JSONObject();
         messageObject.put("role", "user");
         messageObject.put("content", prompt);
-        messageObject.put("temperature", config.getTemperature());
         messagesArray.add(messageObject);
         jsonObject.put("messages", messagesArray);
         
-        logger.debug("发送请求到星火X1：{}", config.getHostUrl());
+        logger.debug("发送请求到星火X1.5：{}", config.getHostUrl());
         logger.debug("请求内容长度：{} 字符", jsonObject.toString().length());
         
         // 构建HTTP请求
@@ -126,7 +125,7 @@ public class SparkX1CodeJudgeClient {
         // 发送请求
         try (Response response = client.newCall(request).execute()) {
             if (!response.isSuccessful()) {
-                logger.error("星火X1 API调用失败，状态码：{}", response.code());
+                logger.error("星火X1.5 API调用失败，状态码：{}", response.code());
                 throw new IOException("API调用失败，状态码：" + response.code());
             }
             
@@ -145,7 +144,7 @@ public class SparkX1CodeJudgeClient {
             JSONObject response = JSON.parseObject(responseBody);
             
             if (response.getJSONArray("choices") == null || response.getJSONArray("choices").isEmpty()) {
-                logger.warn("星火X1响应格式错误：{}", responseBody);
+                logger.warn("星火X1.5响应格式错误：{}", responseBody);
                 return buildErrorResult("AI模型响应格式错误");
             }
             

@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 import java.util.Map;
 
 /**
- * 星火X1模型个性化建议分析器
+ * 星火X1.5模型个性化建议分析器
  * 基于面试表现生成个性化的学习建议和改进方案
  */
 @Component
@@ -48,29 +48,29 @@ public class SparkX1PersonalizedSuggestionsAnalyzer {
      * @return 个性化建议分析结果的JSON字符串
      */
     public String analyzePersonalizedSuggestions(Long sessionId, Long userId, Map<String, Object> interviewData) {
-        log.info("开始使用星火X1模型生成个性化建议 sessionId={}, userId={}", sessionId, userId);
+        log.info("开始使用星火X1.5模型生成个性化建议 sessionId={}, userId={}", sessionId, userId);
         
         try {
             // 1. 构建个性化建议分析提示词
             String prompt = promptBuilder.buildPersonalizedSuggestionsPrompt(interviewData);
             log.debug("个性化建议分析提示词构建完成，长度: {}", prompt.length());
             
-            // 2. 调用星火X1模型进行分析
-            log.info("调用星火X1模型进行个性化建议分析...");
+            // 2. 调用星火X1.5模型进行分析
+            log.info("调用星火X1.5模型进行个性化建议分析...");
             String analysisResult = sparkClient.ask(prompt);
             
             if (analysisResult == null || analysisResult.trim().isEmpty()) {
-                log.error("星火X1模型返回空结果");
+                log.error("星火X1.5模型返回空结果");
                 throw new RuntimeException("AI分析返回空结果");
             }
             
-            log.info("星火X1个性化建议分析完成 sessionId={}, 结果长度={}", sessionId, analysisResult.length());
+            log.info("星火X1.5个性化建议分析完成 sessionId={}, 结果长度={}", sessionId, analysisResult.length());
             log.debug("个性化建议分析结果: {}", analysisResult);
             
             return analysisResult;
             
         } catch (Exception e) {
-            log.error("星火X1个性化建议分析失败 sessionId={}, userId={}", sessionId, userId, e);
+            log.error("星火X1.5个性化建议分析失败 sessionId={}, userId={}", sessionId, userId, e);
             throw new RuntimeException("个性化建议分析失败: " + e.getMessage(), e);
         }
     }

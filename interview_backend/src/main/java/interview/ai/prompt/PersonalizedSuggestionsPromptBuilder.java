@@ -5,7 +5,7 @@ import java.util.Map;
 
 /**
  * 个性化建议提示词构建器
- * 为星火X1模型构建个性化建议分析的提示词
+ * 为星火X1.5模型构建个性化建议分析的提示词
  */
 @Component
 public class PersonalizedSuggestionsPromptBuilder {

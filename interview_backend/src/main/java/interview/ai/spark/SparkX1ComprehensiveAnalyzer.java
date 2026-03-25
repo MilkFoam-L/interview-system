@@ -29,7 +29,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
- * 星火X1综合分析简报分析器
+ * 星火X1.5综合分析简报分析器
  * 综合面试各环节数据，生成AI综合分析简报
  */
 @Component

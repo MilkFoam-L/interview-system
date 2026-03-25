@@ -16,8 +16,8 @@ import java.math.RoundingMode;
 import java.util.concurrent.TimeUnit;
 
 /**
- * 星火X1自我介绍分析客户端
- * 使用星火X1开放API对自我介绍进行多维度分析
+ * 星火X1.5自我介绍分析客户端
+ * 使用星火X1.5开放API对自我介绍进行多维度分析
  */
 @Component
 public class SparkX1IntroductionAnalyzer {
@@ -47,7 +47,7 @@ public class SparkX1IntroductionAnalyzer {
             // 构建分析提示词
             String prompt = buildAnalysisPrompt(introductionText, duration);
             
-            // 发送请求到星火X1
+            // 发送请求到星火X1.5
             String response = callSparkX1API(prompt);
             
             // 解析分析结果
@@ -64,26 +64,25 @@ public class SparkX1IntroductionAnalyzer {
     }
     
     /**
-     * 调用星火X1开放API
+     * 调用星火X1.5开放API
      */
     private String callSparkX1API(String prompt) throws IOException {
         // 构建请求体
         JSONObject jsonObject = new JSONObject();
-        jsonObject.put("user", "interview_introduction_analyzer");
         jsonObject.put("model", config.getModel());
         jsonObject.put("stream", false);
         jsonObject.put("max_tokens", config.getMaxTokens());
-        
+        jsonObject.put("temperature", 0.3);
+
         // 创建消息数组
         JSONArray messagesArray = new JSONArray();
         JSONObject messageObject = new JSONObject();
         messageObject.put("role", "user");
         messageObject.put("content", prompt);
-        messageObject.put("temperature", 0.3); // 降低温度确保结果一致性
         messagesArray.add(messageObject);
         jsonObject.put("messages", messagesArray);
         
-        logger.debug("发送自我介绍分析请求到星火X1：{}", config.getHostUrl());
+        logger.debug("发送自我介绍分析请求到星火X1.5：{}", config.getHostUrl());
         
         // 构建HTTP请求
         RequestBody body = RequestBody.create(jsonObject.toString(), MediaType.parse("application/json"));
@@ -97,7 +96,7 @@ public class SparkX1IntroductionAnalyzer {
         // 发送请求
         try (Response response = client.newCall(request).execute()) {
             if (!response.isSuccessful()) {
-                logger.error("星火X1 API调用失败，状态码：{}", response.code());
+                logger.error("星火X1.5 API调用失败，状态码：{}", response.code());
                 throw new IOException("API调用失败，状态码：" + response.code());
             }
             
@@ -168,7 +167,7 @@ public class SparkX1IntroductionAnalyzer {
             JSONObject response = JSON.parseObject(responseBody);
             
             if (response.getJSONArray("choices") == null || response.getJSONArray("choices").isEmpty()) {
-                logger.warn("星火X1响应格式错误：{}", responseBody);
+                logger.warn("星火X1.5响应格式错误：{}", responseBody);
                 return buildErrorResult("AI模型响应格式错误");
             }
             

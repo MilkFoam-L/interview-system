@@ -6,9 +6,9 @@ import org.springframework.stereotype.Component;
 import lombok.Data;
 
 /**
- * 星火X1大模型配置类
+ * 星火X1.5大模型配置类
  * 负责管理API密钥、请求参数等配置信息
- * 使用星火X1开放API，只需要APIPassword认证
+ * 使用星火X1.5开放API，只需要APIPassword认证
  */
 @Data
 @Component
@@ -16,20 +16,20 @@ import lombok.Data;
 public class SparkX1Config {
     
     /**
-     * API密码 - 星火X1开放API认证凭据
+     * API密码 - 星火X1.5开放API认证凭据
      * 格式：key:secret
      */
     private String apiPassword = "rCGYHXqURhxBCYgiDoDx:mgwfvPABvogmzrswdnFI";
     
     /**
-     * API主机地址 - 星火X1开放API
+     * API主机地址 - 星火X1.5开放API
      */
     private String hostUrl = "https://spark-api-open.xf-yun.com/v2/chat/completions";
     
     /**
      * 模型名称
      */
-    private String model = "x1";
+    private String model = "spark-x";
     
     /**
      * 最大Token数

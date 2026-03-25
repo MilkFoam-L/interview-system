@@ -8,13 +8,13 @@ import lombok.Builder;
 import java.util.List;
 
 /**
- * 星火X1模型数据结构
- * 定义与星火X1模型交互的请求和响应数据结构
+ * 星火X1.5模型数据结构
+ * 定义与星火X1.5模型交互的请求和响应数据结构
  */
 public class SparkX1Model {
     
     /**
-     * 星火X1模型请求数据结构
+     * 星火X1.5模型请求数据结构
      */
     @Data
     @Builder
@@ -70,7 +70,7 @@ public class SparkX1Model {
     }
     
     /**
-     * 星火X1模型响应数据结构
+     * 星火X1.5模型响应数据结构
      */
     @Data
     @Builder

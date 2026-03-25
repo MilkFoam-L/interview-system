@@ -466,7 +466,7 @@ public class ComprehensiveReportServiceImpl implements ComprehensiveReportServic
         try {
             // 检查分析器是否可用
             if (!basicQAAnalyzer.isAvailable()) {
-                log.warn("星火X1基础问答分析器不可用，跳过分析 sessionId={}", sessionId);
+                log.warn("星火X1.5基础问答分析器不可用，跳过分析 sessionId={}", sessionId);
                 throw new RuntimeException("基础问答分析器不可用");
             }
             
@@ -479,7 +479,7 @@ public class ComprehensiveReportServiceImpl implements ComprehensiveReportServic
             
             ComprehensiveReport report = reportOpt.get();
             
-            // 调用星火X1进行基础问答分析
+            // 调用星火X1.5进行基础问答分析
             SparkX1BasicQAAnalyzer.BasicQAAnalysisResult analysisResult = 
                 basicQAAnalyzer.analyzeBasicQA(sessionId, userId);
             

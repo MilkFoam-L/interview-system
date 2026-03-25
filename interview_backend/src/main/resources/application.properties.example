@@ -1,73 +1,146 @@
-# 服务器配置
+# 复制本文件为 application.properties 并填写真实密钥与连接信息，切勿将 application.properties 提交到公开仓库。
+#
+# 服务器配置 - 确保使用8081端口
 server.port=8081
+
 spring.application.name=interview-system
 
-# 数据库配置
-spring.datasource.url=jdbc:mysql://127.0.0.1:3306/interview_cloud?useSSL=true&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&characterEncoding=utf8&useUnicode=true
+# 数据库配置 - 云数据库RDS
+spring.datasource.url=jdbc:mysql://127.0.0.1:3307/interview_cloud?useSSL=true&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&characterEncoding=utf8&useUnicode=true
 spring.datasource.username=root
 spring.datasource.password=YOUR_DB_PASSWORD
 spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
 
 # JPA配置
+# spring.jpa.hibernate.ddl-auto=create
+# spring.session.jdbc.initialize-schema=always
 spring.jpa.hibernate.ddl-auto=none
 spring.session.jdbc.initialize-schema=never
 spring.jpa.show-sql=false
 spring.jpa.open-in-view=false
 spring.jpa.properties.hibernate.format_sql=false
+# MySQL方言配置
 spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQLDialect
 spring.jpa.database-platform=org.hibernate.dialect.MySQLDialect
+
+## Kafka 配置
+spring.kafka.bootstrap-servers=YOUR_KAFKA_HOST:9092
+# 消费者组ID
+spring.kafka.consumer.group-id=interview-system-group
+# 消费者自动重置偏移量策略
+spring.kafka.consumer.auto-offset-reset=earliest
+# 消费者自动提交偏移量
+spring.kafka.consumer.enable-auto-commit=true
+spring.kafka.consumer.auto-commit-interval=1000
+# 消费者反序列化器
+spring.kafka.consumer.key-deserializer=org.apache.kafka.common.serialization.StringDeserializer
+spring.kafka.consumer.value-deserializer=org.apache.kafka.common.serialization.StringDeserializer
+# 生产者序列化器
+spring.kafka.producer.key-serializer=org.apache.kafka.common.serialization.StringSerializer
+spring.kafka.producer.value-serializer=org.apache.kafka.common.serialization.StringSerializer
+# 生产者确认机制
+spring.kafka.producer.acks=1
+# 生产者重试次数
+spring.kafka.producer.retries=3
+# 生产者批量发送大小
+spring.kafka.producer.batch-size=16384
+# 生产者缓冲区大小
+spring.kafka.producer.buffer-memory=33554432
+
+## Redis 配置
+# Redis服务器地址
+spring.data.redis.host=127.0.0.1
+# Redis服务器端口
+spring.data.redis.port=6379
+# Redis密码
+spring.data.redis.password=YOUR_REDIS_PASSWORD
+# Redis数据库索引
+spring.data.redis.database=0
+# 连接超时时间
+spring.data.redis.timeout=3000ms
+# 指定使用Jedis
+spring.data.redis.client-type=jedis
+
+# Jedis连接池配置
+# 连接池最大连接数
+spring.data.redis.jedis.pool.max-active=20
+# 连接池最大空闲连接数
+spring.data.redis.jedis.pool.max-idle=10
+# 连接池最小空闲连接数
+spring.data.redis.jedis.pool.min-idle=5
+# 连接池最大阻塞等待时间
+spring.data.redis.jedis.pool.max-wait=3000ms
+spring.data.redis.jedis.pool.test-on-borrow=true
 
 # Swagger配置
 springdoc.api-docs.path=/api-docs
 springdoc.swagger-ui.path=/swagger-ui.html
 
 # 讯飞API配置 - 人脸识别
-xunfei.app-id=YOUR_APP_ID
-xunfei.api-key=YOUR_API_KEY
-xunfei.api-secret=YOUR_API_SECRET
+# 应用ID
+xunfei.app-id=YOUR_XUNFEI_APP_ID
+# 接口密钥
+xunfei.api-key=YOUR_XUNFEI_API_KEY
+# 接口秘钥
+xunfei.api-secret=YOUR_XUNFEI_API_SECRET
 
 # 讯飞API配置 - 语音转写
-xunfei.rtasr-app-id=YOUR_APP_ID
-xunfei.rtasr-api-key=YOUR_API_KEY
+# 应用ID
+xunfei.rtasr-app-id=YOUR_XUNFEI_RTASR_APP_ID
+# 接口密钥
+xunfei.rtasr-api-key=YOUR_XUNFEI_RTASR_API_KEY
+# 语音转写服务地址
 xunfei.rtasr-url=wss://rtasr.xfyun.cn/v1/ws
+# 连接超时时间（秒）
 xunfei.rtasr-connect-timeout=30
+# 读取超时时间（秒）
 xunfei.rtasr-read-timeout=60
+# 最大重试次数
 xunfei.rtasr-max-retry=3
 
 # 讯飞API配置 - 简历生成
-xunfei.resume.app-id=YOUR_APP_ID
-xunfei.resume.api-key=YOUR_API_KEY
-xunfei.resume.api-secret=YOUR_API_SECRET
+# 应用ID
+xunfei.resume.app-id=YOUR_XUNFEI_RESUME_APP_ID
+# 接口密钥
+xunfei.resume.api-key=YOUR_XUNFEI_RESUME_API_KEY
+# 接口密钥
+xunfei.resume.api-secret=YOUR_XUNFEI_RESUME_API_SECRET
+# 接口地址
 xunfei.resume.url=https://api.xfyun.cn/v1/service/v1/resume_generation
 
 # 讯飞API配置 - 人脸检测
-xunfei.face-detect.app-id=YOUR_APP_ID
-xunfei.face-detect.api-key=YOUR_API_KEY
-xunfei.face-detect.api-secret=YOUR_API_SECRET
-xunfei.face-detect.service-id=YOUR_SERVICE_ID
-xunfei.face-detect.request-url=https://api.xf-yun.com/v1/private/YOUR_SERVICE_ID
+# 应用ID
+xunfei.face-detect.app-id=YOUR_XUNFEI_FACE_DETECT_APP_ID
+# API Key
+xunfei.face-detect.api-key=YOUR_XUNFEI_FACE_DETECT_API_KEY
+# API Secret
+xunfei.face-detect.api-secret=YOUR_XUNFEI_FACE_DETECT_API_SECRET
+# 服务ID
+xunfei.face-detect.service-id=YOUR_XUNFEI_FACE_DETECT_SERVICE_ID
+# 请求地址（请将末尾路径中的服务 ID 与上一项保持一致）
+xunfei.face-detect.request-url=https://api.xf-yun.com/v1/private/YOUR_XUNFEI_FACE_DETECT_SERVICE_ID
 
-# Xunfei Spark 大模型
-xfyun.spark.appId=YOUR_APP_ID
-xfyun.spark.apiKey=YOUR_API_KEY
-xfyun.spark.apiSecret=YOUR_API_SECRET
+# ========= Xunfei Spark 大模型 =========
+xfyun.spark.appId=YOUR_XFYUN_SPARK_APP_ID
+xfyun.spark.apiKey=YOUR_XFYUN_SPARK_API_KEY
+xfyun.spark.apiSecret=YOUR_XFYUN_SPARK_API_SECRET
 xfyun.spark.hostUrl=https://spark-api.xf-yun.com/v4.0/chat
 xfyun.spark.domain=4.0Ultra
 
-# Xunfei TTS（语音合成）
-xfyun.tts.appId=YOUR_APP_ID
-xfyun.tts.apiKey=YOUR_API_KEY
-xfyun.tts.apiSecret=YOUR_API_SECRET
+# ========= Xunfei TTS（语音合成） =========
+xfyun.tts.appId=YOUR_XFYUN_TTS_APP_ID
+xfyun.tts.apiKey=YOUR_XFYUN_TTS_API_KEY
+xfyun.tts.apiSecret=YOUR_XFYUN_TTS_API_SECRET
 xfyun.tts.hostUrl=https://tts-api.xfyun.cn/v2/tts
 
-# Xunfei RTASR（实时转写）
-xfyun.rtasr.appId=YOUR_APP_ID
-xfyun.rtasr.apiKey=YOUR_API_KEY
+# ========= Xunfei RTASR（实时转写） =========
+xfyun.rtasr.appId=YOUR_XFYUN_RTASR_APP_ID
+xfyun.rtasr.apiKey=YOUR_XFYUN_RTASR_API_KEY
 
-# Xunfei Spark X1 大模型配置（AI代码判题专用）
-xfyun.spark-x1.api-password=YOUR_API_PASSWORD
+# ========= Xunfei Spark X1 大模型配置（AI代码判题专用） =========
+xfyun.spark-x1.api-password=YOUR_XFYUN_SPARK_X1_API_PASSWORD
 xfyun.spark-x1.host-url=https://spark-api-open.xf-yun.com/v2/chat/completions
-xfyun.spark-x1.model=x1
+xfyun.spark-x1.model=spark-x
 xfyun.spark-x1.max-tokens=4096
 xfyun.spark-x1.temperature=0.1
 xfyun.spark-x1.connect-timeout=30000
@@ -84,12 +157,13 @@ spring.mvc.cors.allowed-headers=*
 spring.servlet.multipart.max-file-size=10MB
 spring.servlet.multipart.max-request-size=10MB
 
-# 日志配置
+# 日志配置 - 简化版
 logging.level.root=WARN
 logging.level.interview=INFO
 logging.level.interview.controller=INFO
 logging.level.interview.service=INFO
 logging.level.interview.util=WARN
+# 完全禁用 Hibernate SQL 相关日志
 logging.level.org.hibernate.SQL=OFF
 logging.level.org.hibernate.type=OFF
 logging.level.org.hibernate.type.descriptor.sql=OFF
@@ -106,6 +180,7 @@ logging.level.org.springframework.security.web=OFF
 logging.level.interview.service.impl.FaceExpressionServiceImpl=DEBUG
 logging.level.interview.service.impl.FaceDetectServiceImpl=DEBUG
 logging.level.interview.util.HttpClientUtils=DEBUG
+#logging.level.interview.repository.FaceExpressionRepository=DEBUG
 logging.pattern.console=%d{HH:mm:ss} %-5level %logger{20} - %msg%n
 
 # 控制台输出编码设置
@@ -113,12 +188,16 @@ spring.output.ansi.enabled=ALWAYS
 server.servlet.encoding.charset=UTF-8
 server.servlet.encoding.force=true
 server.servlet.encoding.enabled=true
-logging.charset.console=UTF-8
 
+# 控制台日志编码
+logging.charset.console=UTF-8
 # Hibernate配置
 spring.jpa.properties.hibernate.current_session_context_class=org.springframework.orm.hibernate5.SpringSessionContext
+# 禁用 Hibernate 统计信息
 spring.jpa.properties.hibernate.generate_statistics=false
+# 禁用 Hibernate 缓存查询统计
 spring.jpa.properties.hibernate.cache.use_query_cache=false
+# 禁用 Hibernate 二级缓存统计
 spring.jpa.properties.hibernate.cache.use_second_level_cache=false
 
 # 会话配置
@@ -134,38 +213,12 @@ server.error.include-binding-errors=always
 server.error.include-stacktrace=never
 server.error.include-exception=false
 
-# Kafka 配置
-spring.kafka.bootstrap-servers=YOUR_KAFKA_HOST:9092
-spring.kafka.consumer.group-id=interview-system-group
-spring.kafka.consumer.auto-offset-reset=earliest
-spring.kafka.consumer.enable-auto-commit=true
-spring.kafka.consumer.auto-commit-interval=1000
-spring.kafka.consumer.key-deserializer=org.apache.kafka.common.serialization.StringDeserializer
-spring.kafka.consumer.value-deserializer=org.apache.kafka.common.serialization.StringDeserializer
-spring.kafka.producer.key-serializer=org.apache.kafka.common.serialization.StringSerializer
-spring.kafka.producer.value-serializer=org.apache.kafka.common.serialization.StringSerializer
-spring.kafka.producer.acks=1
-spring.kafka.producer.retries=3
-spring.kafka.producer.batch-size=16384
-spring.kafka.producer.buffer-memory=33554432
-
-# Redis 配置
-spring.data.redis.host=127.0.0.1
-spring.data.redis.port=6379
-spring.data.redis.password=YOUR_REDIS_PASSWORD
-spring.data.redis.database=0
-spring.data.redis.timeout=3000ms
-spring.data.redis.client-type=jedis
-
-# Jedis连接池配置
-spring.data.redis.jedis.pool.max-active=20
-spring.data.redis.jedis.pool.max-idle=10
-spring.data.redis.jedis.pool.min-idle=5
-spring.data.redis.jedis.pool.max-wait=3000ms
-spring.data.redis.jedis.pool.test-on-borrow=true
-
-# 代码判题模式配置
+# 代码判题模式配置 (ai)
 code.judge.mode=ai
+
+# 启用轻量级分数优化
 judge.hybrid.enabled=true
+# 代码质量权重 (0.0-1.0)
 judge.hybrid.quality-weight=0.2
+# 最大分数调整范围 (+/-)
 judge.hybrid.max-adjustment=15
