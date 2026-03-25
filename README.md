@@ -7,17 +7,28 @@
 
 ## 项目介绍
 
-枢鉴-智能面试系统是一个基于Spring Boot和Vue.js的智能面试平台，通过集成讯飞AI能力（讯飞星火大模型、语音识别、语音合成），为面试官和候选人提供全方位的在线面试解决方案。本系统支持简历解析、音视频面试、智能评分和面试反馈等功能。
+枢鉴-智能面试系统是一个基于Spring Boot和Vue.js的智能面试平台，通过集成讯飞AI能力（讯飞星火大模型X1.5、语音识别、语音合成、人脸比对），为面试官和候选人提供全方位的在线面试解决方案。系统支持完整的四阶段面试流程：自我介绍 → 基础问答 → 场景模拟 → 代码实操，并提供AI驱动的综合评估报告。
+
+### 面试流程
+
+1. **准备阶段**：设备检测（摄像头/麦克风/网络）+ 人脸识别验证
+2. **自我介绍**（60秒）：语音转写 + 表情捕获 + AI分析
+3. **基础问答**（10道选择题）：按岗位智能出题 + AI答题分析
+4. **场景模拟**（5轮对话）：AI面试官根据简历提问 + STAR法则评估
+5. **代码实操**（3道编程题）：在线编码 + AI代码评判
 
 ### 主要功能
 
-- **用户管理**：支持用户注册、登录、个人信息管理
+- **用户管理**：支持用户注册、登录、个人信息管理，区分候选人和面试官角色
 - **简历解析**：自动解析候选人上传的简历（支持Word和文本格式）
-- **在线面试**：支持实时视频面试，包括人脸检测
-- **AI辅助**：利用讯飞星火大模型生成面试问题和评估回答
-- **语音识别**：实时转录面试过程中的语音内容
-- **智能评分**：多维度评估候选人回答，提供量化分析
-- **数据分析**：面试结果统计和可视化展示
+- **人脸验证**：基于讯飞新版API（api.xf-yun.com）的人脸比对验证
+- **在线面试**：支持实时视频面试，包括人脸检测和表情分析
+- **AI辅助**：利用讯飞星火X1.5大模型（spark-x）生成面试问题和评估回答
+- **语音识别**：讯飞实时语音转写（RTASR），支持自我介绍和场景问答的语音输入
+- **语音合成**：讯飞TTS语音合成，面试各环节语音指引（支持跳过）
+- **智能评分**：12维能力矩阵评估 + 综合报告 + 个性化建议
+- **数据分析**：面试结果统计和可视化展示（ECharts）
+- **企业管理**：数据中心、岗位管理、题库管理、人才管理四大模块
 
 ## 系统架构
 
@@ -28,7 +39,9 @@
 - **安全框架**：Spring Security
 - **数据库**：MySQL 8.0
 - **API文档**：SpringDoc OpenAPI (Swagger UI)
-- **AI集成**：讯飞开放平台API（星火大模型、语音识别、语音合成）
+- **缓存**：Redis（Jedis）
+- **消息队列**：Apache Kafka
+- **AI集成**：讯飞开放平台API（星火X1.5大模型、语音识别、语音合成、人脸比对）
 - **WebSocket**：Spring WebSocket + STOMP
 - **工具库**：Lombok、Apache POI、OkHttp、Gson/FastJSON
 
@@ -65,31 +78,49 @@ spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQLDialect
 ```
 
 #### 2. 讯飞API配置
+
+> 配置文件模板见 `application.properties.example`，复制后填入真实密钥即可。
+
 ```properties
-# 讯飞星火大模型配置
+# 讯飞星火大模型配置（场景问答用）
 xfyun.spark.appId=your-app-id
 xfyun.spark.apiKey=your-api-key
 xfyun.spark.apiSecret=your-api-secret
-xfyun.spark.hostUrl=https://spark-api.xf-yun.com/v3.1/chat
-xfyun.spark.domain=generalv3
+xfyun.spark.hostUrl=https://spark-api.xf-yun.com/v4.0/chat
+xfyun.spark.domain=4.0Ultra
+
+# 讯飞星火X1.5开放API（AI评估/判题用，model必须为spark-x）
+xfyun.spark-x1.api-password=your-api-password
+xfyun.spark-x1.host-url=https://spark-api-open.xf-yun.com/v2/chat/completions
+xfyun.spark-x1.model=spark-x
 
 # 讯飞语音合成TTS配置
 xfyun.tts.appId=your-app-id
 xfyun.tts.apiKey=your-api-key
 xfyun.tts.apiSecret=your-api-secret
-xfyun.tts.hostUrl=https://tts-api.xfyun.cn/v2/tts
 
-# 讯飞实时语音识别RTASR配置
-xfyun.rtasr.appId=your-app-id
-xfyun.rtasr.apiKey=your-api-key
-xfyun.rtasr.url=wss://rtasr.xfyun.cn/v1/ws
+# 讯飞实时语音转写RTASR配置（需确认appId已开通RTASR服务）
+xunfei.rtasr-app-id=your-app-id
+xunfei.rtasr-api-key=your-api-key
 
-# 讯飞人脸检测配置
-xfyun.face-detect.app-id=your-app-id
-xfyun.face-detect.api-key=your-api-key
-xfyun.face-detect.api-secret=your-api-secret
-xfyun.face-detect.service-id=your-service-id
-xfyun.face-detect.request-url=https://api.xf-yun.com/v1/private/your-service-id
+# 讯飞人脸检测/比对配置（使用新版api.xf-yun.com + HMAC-SHA256鉴权）
+xunfei.face-detect.app-id=your-app-id
+xunfei.face-detect.api-key=your-api-key
+xunfei.face-detect.api-secret=your-api-secret
+xunfei.face-detect.service-id=your-service-id
+xunfei.face-detect.request-url=https://api.xf-yun.com/v1/private/your-service-id
+```
+
+#### 2.5 Kafka & Redis 配置
+```properties
+# Kafka
+spring.kafka.bootstrap-servers=your-kafka-host:9092
+spring.kafka.consumer.group-id=interview-system-group
+
+# Redis
+spring.data.redis.host=127.0.0.1
+spring.data.redis.port=6379
+spring.data.redis.password=your-redis-password
 ```
 
 #### 3. 服务器和安全配置
@@ -390,6 +421,8 @@ service.interceptors.response.use(
 - Maven 3.8+
 - Node.js 16+
 - MySQL 8.0+
+- Redis 6.0+
+- Apache Kafka 3.0+（可选，用于异步消息处理）
 
 ### 后端部署
 
@@ -399,11 +432,17 @@ service.interceptors.response.use(
    cd interview-system
    ```
 
-2. 配置数据库：
-   在 `interview_backend/src/main/resources/application.properties` 中配置您的数据库连接。
+2. 复制配置模板并填入真实密钥：
+   ```bash
+   cd interview_backend/src/main/resources
+   cp application.properties.example application.properties
+   # 编辑 application.properties，填入数据库、Redis、Kafka、讯飞API等凭证
+   ```
 
-3. 配置讯飞API参数：
-   在 `interview_backend/src/main/resources/application.properties` 中添加您的讯飞API凭证。
+3. 注意事项：
+   - `application.properties` 包含敏感密钥，已被 `.gitignore` 排除，切勿提交
+   - 讯飞各服务（TTS/RTASR/人脸/星火）需在对应appId下分别开通
+   - 星火X1.5的model值必须为 `spark-x`
 
 4. 编译并运行后端：
    ```bash
@@ -484,5 +523,4 @@ interview-system/
 ## 联系方式
 
 如有任何问题或建议，请联系：
-- 项目维护者: [维护者姓名](mailto:example@email.com)
-- 项目仓库: [GitHub地址](https://github.com/your-username/interview-system)
+- 项目维护者: 唐啟泰 (milkfoam163@gmail.com)
