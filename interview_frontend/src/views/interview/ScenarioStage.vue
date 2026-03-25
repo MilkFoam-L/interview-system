@@ -118,12 +118,20 @@
           
           <div class="actions" :class="{'disabled': showThinkingCountdown}">
             <el-button plain @click="answer = ''" :disabled="showThinkingCountdown || !answer || isSending">清空</el-button>
+            <el-button
+              type="warning"
+              plain
+              :loading="skippingScenario"
+              @click="skipScenario"
+            >
+              跳过场景问答（测试）
+            </el-button>
             <el-button type="primary" :loading="isSending" :disabled="showThinkingCountdown" @click="handleSubmit">
               {{ currentIndex < questions.length - 1 ? '提交回答' : '提交并完成' }}
             </el-button>
           </div>
 
-          <!-- 30秒思考倒计时遮罩层 -->
+          <!-- 10秒思考倒计时遮罩层 -->
           <div v-if="showThinkingCountdown" class="thinking-overlay">
             <div class="thinking-content">
               <div class="countdown-circle">
@@ -205,10 +213,10 @@ const isReplayingHistory = ref(false); // 是否正在重播历史
 
 // 思考倒计时相关状态
 const showThinkingCountdown = ref(false); // 是否显示思考倒计时
-const thinkingCountdown = ref(30);        // 默认30秒思考时间
+const thinkingCountdown = ref(10);        // 默认10秒思考时间
 const isThinkingActive = ref(false);      // 思考倒计时是否已激活（显示但不一定在倒计时）
 const thinkingCircleOffset = computed(() => {
-  return 339.292 * (1 - thinkingCountdown.value / 30);
+  return 339.292 * (1 - thinkingCountdown.value / 10);
 });
 let thinkingTimer = null;
 
@@ -246,7 +254,7 @@ function formatTimer(seconds) {
 function prepareThinkingCountdown() {
   showThinkingCountdown.value = true;
   isThinkingActive.value = true;
-  thinkingCountdown.value = 30;
+  thinkingCountdown.value = 10;
 }
 
 // 开始思考倒计时
@@ -331,6 +339,39 @@ function moveToNextQuestion() {
     }
     completed.value = true;
     emit('stage-complete');
+  }
+}
+
+// 跳过场景问答（测试用）
+const skippingScenario = ref(false);
+
+async function skipScenario() {
+  if (skippingScenario.value) return;
+  skippingScenario.value = true;
+
+  try {
+    console.log('⏭ 测试模式：跳过场景问答');
+
+    // 停止所有正在进行的活动
+    if (recording.value) {
+      stopVoice();
+    }
+    if (thinkingTimer) {
+      clearInterval(thinkingTimer);
+      thinkingTimer = null;
+    }
+    showThinkingCountdown.value = false;
+
+    // 直接标记完成
+    try {
+      completeStage(props.sessionId);
+    } catch (e) {
+      console.error('标记完成失败', e);
+    }
+    completed.value = true;
+    emit('stage-complete');
+  } finally {
+    skippingScenario.value = false;
   }
 }
 
@@ -1007,7 +1048,7 @@ onMounted(initStage);
 .chat-container {
   height: 400px; /* 固定高度 */
   overflow-y: auto;
-  padding: 0 8px;
+  padding: 16px 8px;
   margin-bottom: 16px;
   border: 1px solid #ebeef5;
   border-radius: 8px;
@@ -1021,6 +1062,10 @@ onMounted(initStage);
 }
 
 .interviewer-row {
+  flex-direction: row;
+}
+
+.candidate-row {
   flex-direction: row-reverse;
 }
 
@@ -1058,7 +1103,7 @@ onMounted(initStage);
 .interviewer {
   background-color: #e1f3ff;
   color: #333;
-  border-radius: 10px 2px 10px 10px;
+  border-radius: 2px 10px 10px 10px;
 }
 
 .interviewer .follow-up-question {
@@ -1088,9 +1133,9 @@ onMounted(initStage);
 .candidate {
   background-color: #f0fff0;
   color: #333;
-  border-radius: 2px 10px 10px 10px;
-  margin-right: auto;
-  border-left: 2px solid #67c23a;
+  border-radius: 10px 2px 10px 10px;
+  margin-left: auto;
+  border-right: 2px solid #67c23a;
 }
 
 /* 答题计时器 */
@@ -1196,6 +1241,8 @@ onMounted(initStage);
   margin-top: 12px;
   display: flex;
   justify-content: space-between;
+  align-items: center;
+  gap: 8px;
 }
 
 /* 打字动画 */
