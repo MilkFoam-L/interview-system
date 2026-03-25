@@ -66,12 +66,17 @@ public class SessionQuestionServiceImpl implements SessionQuestionService {
         
         // 1. 查询题库，优先按categoryType筛选 (只获取启用的题目)
         String targetType = stageToType(stage);
-        List<Question> candidates = questionRepository.findActiveByCategoryTypeAndType(categoryType, targetType);
-        
+        String targetInputType = stageToInputType(stage); // 获取环节对应的 inputType
+
+        List<Question> candidates = new ArrayList<>();
+
+        if (categoryType != null && !categoryType.trim().isEmpty()) {
+            candidates = questionRepository.findActiveByCategoryTypeAndType(categoryType, targetType);
+        }
+
         // 2. 如果数量不足，用大类category补充 (只获取启用的题目)
-        if (candidates.size() < count * 2 && category != null) { // 确保有足够的候选题目
+        if (candidates.size() < count * 2 && category != null) {
             List<Question> more = questionRepository.findActiveByCategoryAndType(category, targetType);
-            // 合并去重
             Set<Long> ids = candidates.stream().map(Question::getId).collect(Collectors.toSet());
             for (Question q : more) {
                 if (!ids.contains(q.getId())) {
@@ -79,31 +84,72 @@ public class SessionQuestionServiceImpl implements SessionQuestionService {
                 }
             }
         }
-        
-        // 3. 兜底逻辑：如果仍然没有题目，尝试查询所有类型的启用题目
+
+        // 3. 按 inputType 过滤（BASIC_QA 只要 radio 题，CODE_TEST 只要 code 题）
+        if (targetInputType != null && !candidates.isEmpty()) {
+            final String fitType = targetInputType;
+            candidates = candidates.stream()
+                .filter(q -> fitType.equals(q.getInputType()))
+                .collect(Collectors.toList());
+        }
+
+        // 4. 兜底逻辑：如果仍然没有题目
         if (candidates.isEmpty()) {
-            log.warn("未找到 categoryType={}, type={} 的题目，尝试兜底查询", categoryType, targetType);
-            
-            // 将变量设为final以供lambda使用
+            log.warn("未找到 categoryType={}, type={}, inputType={} 的题目，尝试兜底查询", categoryType, targetType, targetInputType);
+
             final String finalCategoryType = categoryType;
             final String finalCategory = category;
-            
-            // 先尝试按categoryType查询所有启用的题目
-            candidates = questionRepository.findByIsActive(true).stream()
-                .filter(q -> finalCategoryType.equals(q.getCategoryType()))
-                .collect(Collectors.toList());
-            
-            // 如果还是没有，按category查询
-            if (candidates.isEmpty() && finalCategory != null) {
-                candidates = questionRepository.findByIsActive(true).stream()
-                    .filter(q -> finalCategory.equals(q.getCategory()))
+            final String finalInputType = targetInputType;
+
+            // 从所有启用题目中查找，同时匹配 inputType
+            List<Question> allActive = questionRepository.findByIsActive(true);
+
+            // 按 inputType 过滤（最重要的过滤条件）
+            if (finalInputType != null) {
+                candidates = allActive.stream()
+                    .filter(q -> finalInputType.equals(q.getInputType()))
+                    .collect(Collectors.toList());
+            } else {
+                candidates = new ArrayList<>(allActive);
+            }
+
+            // 如果找到了，尝试进一步按 categoryType 或 category 优先排序
+            if (candidates.size() > count) {
+                // 优先匹配 categoryType 的排前面
+                List<Question> preferred = new ArrayList<>();
+                List<Question> others = new ArrayList<>();
+                for (Question q : candidates) {
+                    if (finalCategoryType != null && finalCategoryType.equals(q.getCategoryType())) {
+                        preferred.add(q);
+                    } else if (finalCategory != null && finalCategory.equals(q.getCategory())) {
+                        preferred.add(q);
+                    } else {
+                        others.add(q);
+                    }
+                }
+                candidates = new ArrayList<>(preferred);
+                candidates.addAll(others);
+            }
+
+            if (candidates.isEmpty()) {
+                log.warn("兜底查询：使用所有启用的 {} 类型题目", targetType);
+                candidates = allActive.stream()
+                    .filter(q -> targetType.equals(q.getType()))
                     .collect(Collectors.toList());
             }
-            
-            // 最后兜底：查询所有启用的题目
+
+            // 终极兜底：不限 type，只按 inputType
+            if (candidates.isEmpty() && finalInputType != null) {
+                log.warn("终极兜底：使用所有 inputType={} 的启用题目", finalInputType);
+                candidates = allActive.stream()
+                    .filter(q -> finalInputType.equals(q.getInputType()))
+                    .collect(Collectors.toList());
+            }
+
+            // 最终兜底：所有启用题目
             if (candidates.isEmpty()) {
-                log.warn("兜底查询：使用所有启用的题目");
-                candidates = questionRepository.findByIsActive(true);
+                log.warn("最终兜底：使用所有启用的题目");
+                candidates = allActive;
             }
         }
         
@@ -231,13 +277,22 @@ public class SessionQuestionServiceImpl implements SessionQuestionService {
         return result;
     }
 
-    // 工具方法：将环节名映射为题目类型 - 修复基础问答类型映射
+    // 工具方法：将环节名映射为题目类型
     private String stageToType(String stage) {
         switch (stage) {
-            case "BASIC_QA": return "basic"; // 如果数据库中没有basic类型，会在下面添加兜底逻辑
+            case "BASIC_QA": return "basic";
             case "CODE_TEST": return "code";
             case "SCENARIO": return "scenario";
             default: return "basic";
+        }
+    }
+
+    // 工具方法：将环节名映射为 inputType（前端显示方式）
+    private String stageToInputType(String stage) {
+        switch (stage) {
+            case "BASIC_QA": return "radio";    // 基础问答 = 单选题
+            case "CODE_TEST": return "code";    // 代码题
+            default: return null;               // 不限制
         }
     }
 } 
