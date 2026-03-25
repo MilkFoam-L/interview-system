@@ -48,30 +48,15 @@
     <!-- 底部按钮 -->
     <template #footer>
       <div class="dialog-footer">
-        <!-- 只有语音播放完成后才显示按钮 -->
-        <el-button 
-          v-if="!isPlayingVoice && voiceCompleted"
-          type="primary" 
+        <el-button
+          type="primary"
           size="large"
           @click="handleStart"
           class="start-btn"
         >
           <el-icon><VideoPlay /></el-icon>
-          开始自我介绍
+          {{ isPlayingVoice ? '跳过语音' : '开始自我介绍' }}
         </el-button>
-        
-        <!-- 语音播放中的提示 -->
-        <div v-else-if="isPlayingVoice" class="status-hint">
-          <span>请耐心听完语音指引</span>
-        </div>
-        
-        <!-- 语音加载中 -->
-        <div v-else class="status-hint">
-          <el-icon class="loading-icon">
-            <Loading />
-          </el-icon>
-          <span>正在准备语音指引</span>
-        </div>
       </div>
     </template>
     
@@ -119,22 +104,18 @@ const audioElementRef = ref(null)
 // 语音指引文本
 const guideText = '接下来是60秒自我介绍环节。请介绍您的教育背景、专业技能和工作经验。注意：摄像头中只能有您一个人，否则面试将被中断。保持自信，注视摄像头，准备好后点击开始按钮。'
 
+// 标记是否已请求停止
+const voiceStopped = ref(false)
+
 // 停止语音播放
 const stopVoice = () => {
   console.log('🔇 自我介绍指引：强制停止语音播放')
-  if (audioElementRef.value && !audioElementRef.value.paused) {
-    // 只有在播放中才暂停，避免重复操作
+  voiceStopped.value = true
+  if (audioElementRef.value) {
     try {
       audioElementRef.value.pause()
       audioElementRef.value.currentTime = 0
-      
-      // 延迟清空音频源，避免播放中断导致的error事件
-      setTimeout(() => {
-        if (audioElementRef.value) {
-          audioElementRef.value.src = ''
-          audioElementRef.value.load() // 重新加载音频元素状态
-        }
-      }, 100)
+      audioElementRef.value.src = ''
     } catch (error) {
       console.warn('停止音频时出现警告:', error)
     }
@@ -146,35 +127,41 @@ const stopVoice = () => {
 // 播放语音指引
 const playVoice = async () => {
   if (isPlayingVoice.value) return
-  
+
   try {
     console.log('🎵 开始播放自我介绍指引语音')
     isPlayingVoice.value = true
     voiceCompleted.value = false
-    
-    // 获取TTS音频数据
+    voiceStopped.value = false
+
     const audioData = await fetchTtsAudio(guideText)
+
+    if (voiceStopped.value) {
+      console.log('🔇 用户已跳过，不再播放')
+      return
+    }
+
     if (!audioData) {
       throw new Error('获取音频数据失败')
     }
-    
-    // 创建音频Blob并播放
+
     const blob = new Blob([audioData], { type: 'audio/mpeg' })
     const audioUrl = URL.createObjectURL(blob)
-    
-    if (audioElementRef.value) {
+
+    if (audioElementRef.value && !voiceStopped.value) {
       audioElementRef.value.src = audioUrl
-      
-      // 监听音频结束事件，清理URL
       audioElementRef.value.addEventListener('ended', () => {
         URL.revokeObjectURL(audioUrl)
       }, { once: true })
-      
       await audioElementRef.value.play()
       console.log('🎵 自我介绍指引语音开始播放')
+    } else {
+      URL.revokeObjectURL(audioUrl)
     }
   } catch (error) {
-    console.error('🎵 播放自我介绍指引语音失败:', error)
+    if (!voiceStopped.value) {
+      console.error('🎵 播放自我介绍指引语音失败:', error)
+    }
     console.error('语音播放失败，请稍后重试')
     isPlayingVoice.value = false
     voiceCompleted.value = true
@@ -224,6 +211,7 @@ const handleAudioError = (error) => {
 // 开始自我介绍按钮点击
 const handleStart = () => {
   console.log('用户确认开始自我介绍环节')
+  stopVoice()
   emit('start')
   emit('close')
 }

@@ -42,8 +42,11 @@
           <Mic />
         </el-icon>
         <span class="voice-text">正在播放语音指引</span>
+        <el-button type="primary" size="small" plain @click="handleAutoStart" style="margin-left: 12px;">
+          跳过
+        </el-button>
       </div>
-      
+
       <!-- 自动开始提示 -->
       <div class="auto-start-hint" v-if="!isPlayingVoice && voiceCompleted">
         <el-icon class="countdown-icon">
@@ -96,62 +99,64 @@ const audioElementRef = ref(null)
 // 语音指引文本
 const guideText = '接下来是代码实操题环节。您将完成编程相关的实操题目。请注意，每道题的作答时间限制为5分钟，请合理安排时间，仔细阅读题目要求，认真编写代码。现在开始代码实操题。'
 
+// 标记是否已请求停止
+const voiceStopped = ref(false)
+
 // 停止语音播放
 const stopVoice = () => {
   console.log('🔇 代码实操指引：强制停止语音播放')
-  if (audioElementRef.value && !audioElementRef.value.paused) {
-    // 只有在播放中才暂停，避免重复操作
+  voiceStopped.value = true
+  if (audioElementRef.value) {
     try {
       audioElementRef.value.pause()
       audioElementRef.value.currentTime = 0
-      
-      // 延迟清空音频源，避免播放中断导致的error事件
-      setTimeout(() => {
-        if (audioElementRef.value) {
-          audioElementRef.value.src = ''
-          audioElementRef.value.load() // 重新加载音频元素状态
-        }
-      }, 100)
+      audioElementRef.value.src = ''
     } catch (error) {
       console.warn('停止音频时出现警告:', error)
     }
   }
   isPlayingVoice.value = false
+  voiceCompleted.value = true
 }
 
 // 播放语音指引
 const playVoice = async () => {
   if (isPlayingVoice.value) return
-  
+
   try {
     console.log('🎵 开始播放代码实操指引语音')
     isPlayingVoice.value = true
     voiceCompleted.value = false
-    
-    // 获取TTS音频数据
+    voiceStopped.value = false
+
     const audioData = await fetchTtsAudio(guideText)
+
+    if (voiceStopped.value) {
+      console.log('🔇 用户已跳过，不再播放')
+      return
+    }
+
     if (!audioData) {
       throw new Error('获取音频数据失败')
     }
-    
-    // 创建音频Blob并播放
+
     const blob = new Blob([audioData], { type: 'audio/mpeg' })
     const audioUrl = URL.createObjectURL(blob)
-    
-    if (audioElementRef.value) {
+
+    if (audioElementRef.value && !voiceStopped.value) {
       audioElementRef.value.src = audioUrl
-      
-      // 监听音频结束事件，清理URL
       audioElementRef.value.addEventListener('ended', () => {
         URL.revokeObjectURL(audioUrl)
       }, { once: true })
-      
       await audioElementRef.value.play()
       console.log('🎵 代码实操指引语音开始播放')
+    } else {
+      URL.revokeObjectURL(audioUrl)
     }
   } catch (error) {
-    console.error('🎵 播放代码实操指引语音失败:', error)
-    console.error('语音播放失败，将自动开始代码实操')
+    if (!voiceStopped.value) {
+      console.error('🎵 播放代码实操指引语音失败:', error)
+    }
     isPlayingVoice.value = false
     voiceCompleted.value = true
     // 即使语音播放失败，也要在短暂延迟后开始实操
@@ -213,6 +218,7 @@ const handleAudioError = (error) => {
 // 自动开始代码实操
 const handleAutoStart = () => {
   console.log('自动开始代码实操环节')
+  stopVoice()
   emit('start')
   emit('close')
 }

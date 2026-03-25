@@ -47,22 +47,32 @@
       </div>
       
       <div class="action-buttons">
-        <el-button 
-          type="primary" 
-          plain 
-          :disabled="!hasPrevQuestion" 
+        <el-button
+          type="primary"
+          plain
+          :disabled="!hasPrevQuestion"
           @click="prevQuestion">
           上一题
         </el-button>
-        <el-button 
-          v-if="hasNextQuestion" 
-          type="primary" 
+
+        <el-button
+          type="warning"
+          plain
+          @click="skipAllQuestions"
+          :loading="skipping"
+        >
+          跳过全部（测试）
+        </el-button>
+
+        <el-button
+          v-if="hasNextQuestion"
+          type="primary"
           @click="nextQuestion">
           下一题
         </el-button>
-        <el-button 
-          v-else 
-          type="success" 
+        <el-button
+          v-else
+          type="success"
           @click="completeSection">
           完成
         </el-button>
@@ -832,6 +842,62 @@ async function completeSection() {
   } catch (error) {
     console.error('完成环节失败:', error)
     console.error('完成环节失败，请重试')
+  }
+}
+
+// 跳过全部题目（测试用）- 自动选择正确答案并提交
+const skipping = ref(false)
+
+async function skipAllQuestions() {
+  if (skipping.value || isPlaceholderQuestion.value) return
+  skipping.value = true
+  stopTimer()
+
+  try {
+    console.log('⏭ 测试模式：自动填入正确答案并提交所有题目')
+
+    for (let i = 0; i < questions.value.length; i++) {
+      const q = questions.value[i]
+      const qid = q.questionId
+      const correctAnswer = q.correctAnswer || (q.options && q.options[0]) || 'A'
+
+      // 跳过已回答的题目
+      if (answeredQuestions.value[qid]) continue
+
+      // 设置答案
+      answers.value[i] = correctAnswer
+      answeredQuestions.value[qid] = true
+
+      const now = Date.now()
+      const formattedNow = formatDateForBackend(new Date(now))
+      const formattedStart = formatDateForBackend(new Date(now - 3000))
+
+      // 提交答案
+      try {
+        await submitAnswer({
+          sessionId: props.interviewSessionId,
+          interviewId: props.interviewSessionId,
+          questionId: qid,
+          userId: props.userId,
+          userAnswer: correctAnswer,
+          type: props.stage,
+          startTime: formattedStart,
+          submitTime: formattedNow,
+          timeUsed: 3
+        })
+      } catch (err) {
+        console.warn(`跳过模式：题目 ${i + 1} 提交失败:`, err)
+      }
+    }
+
+    // 跳到最后一题然后完成
+    currentIndex.value = questions.value.length - 1
+    console.log('⏭ 全部题目已自动作答，完成环节')
+    await completeSection()
+  } catch (error) {
+    console.error('跳过失败:', error)
+  } finally {
+    skipping.value = false
   }
 }
 

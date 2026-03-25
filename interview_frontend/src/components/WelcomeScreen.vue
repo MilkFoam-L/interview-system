@@ -50,15 +50,14 @@
             </el-icon>
             <span>{{ isPlayingVoice ? '正在播放语音指引...' : '语音播放完成' }}</span>
           </div>
-          
-          <el-button 
-            v-if="!isPlayingVoice" 
-            type="primary" 
-            size="large" 
+
+          <el-button
+            type="primary"
+            size="large"
             @click="handleContinue"
             class="continue-btn"
           >
-            {{ welcomeData.buttonText }}
+            {{ isPlayingVoice ? '跳过' : welcomeData.buttonText }}
           </el-button>
         </div>
       </div>

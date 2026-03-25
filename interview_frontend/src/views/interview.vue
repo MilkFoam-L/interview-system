@@ -143,17 +143,25 @@
                 
                 <!-- 验证按钮 -->
                 <div class="verify-actions">
-                  <el-button 
-                    type="primary" 
-                    :disabled="!idCardImageUrl || !faceImageUrl || !faceName || !faceId" 
-                    @click="handleFaceVerify" 
-                    :loading="faceVerifying"
-                  >
-                    进行人脸识别验证
-                  </el-button>
-                  
+                  <div class="verify-buttons">
+                    <el-button
+                      type="primary"
+                      :disabled="!idCardImageUrl || !faceImageUrl || !faceName || !faceId"
+                      @click="handleFaceVerify"
+                      :loading="faceVerifying"
+                    >
+                      进行人脸识别验证
+                    </el-button>
 
-                  
+                    <el-button
+                      type="warning"
+                      plain
+                      @click="skipFaceVerify"
+                    >
+                      跳过验证（测试）
+                    </el-button>
+                  </div>
+
                   <!-- 验证结果展示 -->
                   <div v-if="verifyResult" :class="['verify-result', verifyResult.samePerson ? 'success' : 'error']">
                     <el-icon v-if="verifyResult.samePerson"><CircleCheckFilled /></el-icon>
@@ -251,6 +259,13 @@
                     <li>保持自然微笑，语速适中，音量适当</li>
                     <li>请您注视摄像头，大方自信，不必紧张哦</li>
                   </ul>
+                </div>
+
+                <!-- 测试用：跳过自我介绍 -->
+                <div class="skip-introduction-btn">
+                  <el-button type="warning" size="small" plain @click="skipIntroduction">
+                    ⏭ 跳过自我介绍（测试）
+                  </el-button>
                 </div>
                 
                 <!-- 添加隐藏的表情捕获组件，只有当videoRef存在时才渲染 -->
@@ -987,6 +1002,19 @@ const handleFaceVerify = async () => {
     }
   } finally {
     faceVerifying.value = false
+  }
+}
+
+// 跳过人脸验证（测试用）
+const skipFaceVerify = () => {
+  console.log('⏭ 测试模式：跳过人脸验证')
+  faceStatus.value = true
+  canNext.value = true
+  verifyResult.value = {
+    success: true,
+    samePerson: true,
+    similarity: 1,
+    message: '已跳过验证（测试模式）'
   }
 }
 
@@ -1896,6 +1924,14 @@ const startIntroductionMode = async () => {
   }, 1000)
   
   console.log('自我介绍模式已开始，请开始您的自我介绍')
+}
+
+// 跳过自我介绍（测试用）
+const skipIntroduction = () => {
+  console.log('⏭ 测试模式：跳过自我介绍')
+
+  // 将倒计时直接设为0，触发正常的倒计时结束逻辑
+  introductionCountdown.value = 0
 }
 
 // 捕获面部图像
@@ -4454,6 +4490,13 @@ const scenarioStageRef = ref(null)
   margin-top: 20px;
 }
 
+.verify-buttons {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  align-items: center;
+}
+
 .verify-result {
   margin-top: 15px;
   display: flex;
@@ -4620,6 +4663,11 @@ const scenarioStageRef = ref(null)
   height: 6px;
   border-radius: 50%;
   background-color: #6366f1;
+}
+
+.skip-introduction-btn {
+  text-align: center;
+  margin-top: 12px;
 }
 
 .expression-analysis-section {

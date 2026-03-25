@@ -305,11 +305,17 @@ const showFullScreenWelcome = (type) => {
 const closeWelcomeScreen = () => {
   showWelcomeScreen.value = false
   welcomeScreenType.value = ''
+  // 确保关闭欢迎界面时停止所有语音播放
+  VoiceGuideService.stopCurrentVoice()
+  isPlayingVoice.value = false
 }
 
 // 处理欢迎界面继续按钮点击
 const handleWelcomeScreenContinue = (type) => {
   console.log(`用户点击了${type === 'newUser' ? '新用户' : '老用户'}欢迎界面的继续按钮`)
+  // 停止语音播放
+  VoiceGuideService.stopCurrentVoice()
+  isPlayingVoice.value = false
 
   // 如果是新用户，在关闭欢迎界面后显示完善资料弹窗
   if (type === 'newUser') {
