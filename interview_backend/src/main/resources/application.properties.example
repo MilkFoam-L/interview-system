@@ -1,0 +1,171 @@
+# 服务器配置
+server.port=8081
+spring.application.name=interview-system
+
+# 数据库配置
+spring.datasource.url=jdbc:mysql://127.0.0.1:3306/interview_cloud?useSSL=true&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&characterEncoding=utf8&useUnicode=true
+spring.datasource.username=root
+spring.datasource.password=YOUR_DB_PASSWORD
+spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+
+# JPA配置
+spring.jpa.hibernate.ddl-auto=none
+spring.session.jdbc.initialize-schema=never
+spring.jpa.show-sql=false
+spring.jpa.open-in-view=false
+spring.jpa.properties.hibernate.format_sql=false
+spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQLDialect
+spring.jpa.database-platform=org.hibernate.dialect.MySQLDialect
+
+# Swagger配置
+springdoc.api-docs.path=/api-docs
+springdoc.swagger-ui.path=/swagger-ui.html
+
+# 讯飞API配置 - 人脸识别
+xunfei.app-id=YOUR_APP_ID
+xunfei.api-key=YOUR_API_KEY
+xunfei.api-secret=YOUR_API_SECRET
+
+# 讯飞API配置 - 语音转写
+xunfei.rtasr-app-id=YOUR_APP_ID
+xunfei.rtasr-api-key=YOUR_API_KEY
+xunfei.rtasr-url=wss://rtasr.xfyun.cn/v1/ws
+xunfei.rtasr-connect-timeout=30
+xunfei.rtasr-read-timeout=60
+xunfei.rtasr-max-retry=3
+
+# 讯飞API配置 - 简历生成
+xunfei.resume.app-id=YOUR_APP_ID
+xunfei.resume.api-key=YOUR_API_KEY
+xunfei.resume.api-secret=YOUR_API_SECRET
+xunfei.resume.url=https://api.xfyun.cn/v1/service/v1/resume_generation
+
+# 讯飞API配置 - 人脸检测
+xunfei.face-detect.app-id=YOUR_APP_ID
+xunfei.face-detect.api-key=YOUR_API_KEY
+xunfei.face-detect.api-secret=YOUR_API_SECRET
+xunfei.face-detect.service-id=YOUR_SERVICE_ID
+xunfei.face-detect.request-url=https://api.xf-yun.com/v1/private/YOUR_SERVICE_ID
+
+# Xunfei Spark 大模型
+xfyun.spark.appId=YOUR_APP_ID
+xfyun.spark.apiKey=YOUR_API_KEY
+xfyun.spark.apiSecret=YOUR_API_SECRET
+xfyun.spark.hostUrl=https://spark-api.xf-yun.com/v4.0/chat
+xfyun.spark.domain=4.0Ultra
+
+# Xunfei TTS（语音合成）
+xfyun.tts.appId=YOUR_APP_ID
+xfyun.tts.apiKey=YOUR_API_KEY
+xfyun.tts.apiSecret=YOUR_API_SECRET
+xfyun.tts.hostUrl=https://tts-api.xfyun.cn/v2/tts
+
+# Xunfei RTASR（实时转写）
+xfyun.rtasr.appId=YOUR_APP_ID
+xfyun.rtasr.apiKey=YOUR_API_KEY
+
+# Xunfei Spark X1 大模型配置（AI代码判题专用）
+xfyun.spark-x1.api-password=YOUR_API_PASSWORD
+xfyun.spark-x1.host-url=https://spark-api-open.xf-yun.com/v2/chat/completions
+xfyun.spark-x1.model=x1
+xfyun.spark-x1.max-tokens=4096
+xfyun.spark-x1.temperature=0.1
+xfyun.spark-x1.connect-timeout=30000
+xfyun.spark-x1.read-timeout=60000
+xfyun.spark-x1.max-retry=3
+xfyun.spark-x1.enabled=true
+
+# CORS配置
+spring.mvc.cors.allowed-origins=*
+spring.mvc.cors.allowed-methods=GET,POST,PUT,DELETE
+spring.mvc.cors.allowed-headers=*
+
+# 上传文件大小限制
+spring.servlet.multipart.max-file-size=10MB
+spring.servlet.multipart.max-request-size=10MB
+
+# 日志配置
+logging.level.root=WARN
+logging.level.interview=INFO
+logging.level.interview.controller=INFO
+logging.level.interview.service=INFO
+logging.level.interview.util=WARN
+logging.level.org.hibernate.SQL=OFF
+logging.level.org.hibernate.type=OFF
+logging.level.org.hibernate.type.descriptor.sql=OFF
+logging.level.org.hibernate.type.descriptor.sql.BasicBinder=OFF
+logging.level.org.hibernate.engine.QueryParameters=OFF
+logging.level.org.hibernate.engine.query.HQLQueryPlan=OFF
+logging.level.org.hibernate.engine.query.NativeSQLQueryPlan=OFF
+logging.level.org.springframework.web=WARN
+logging.level.org.springframework.security=WARN
+logging.level.org.springframework.session=OFF
+logging.level.org.springframework.web.servlet.DispatcherServlet=OFF
+logging.level.org.springframework.web.servlet.mvc.method.annotation=OFF
+logging.level.org.springframework.security.web=OFF
+logging.level.interview.service.impl.FaceExpressionServiceImpl=DEBUG
+logging.level.interview.service.impl.FaceDetectServiceImpl=DEBUG
+logging.level.interview.util.HttpClientUtils=DEBUG
+logging.pattern.console=%d{HH:mm:ss} %-5level %logger{20} - %msg%n
+
+# 控制台输出编码设置
+spring.output.ansi.enabled=ALWAYS
+server.servlet.encoding.charset=UTF-8
+server.servlet.encoding.force=true
+server.servlet.encoding.enabled=true
+logging.charset.console=UTF-8
+
+# Hibernate配置
+spring.jpa.properties.hibernate.current_session_context_class=org.springframework.orm.hibernate5.SpringSessionContext
+spring.jpa.properties.hibernate.generate_statistics=false
+spring.jpa.properties.hibernate.cache.use_query_cache=false
+spring.jpa.properties.hibernate.cache.use_second_level_cache=false
+
+# 会话配置
+server.servlet.session.timeout=30m
+server.servlet.session.cookie.http-only=true
+server.servlet.session.cookie.secure=false
+server.servlet.session.cookie.name=INTERVIEW_SESSION
+spring.session.store-type=jdbc
+
+# 错误处理配置
+server.error.include-message=always
+server.error.include-binding-errors=always
+server.error.include-stacktrace=never
+server.error.include-exception=false
+
+# Kafka 配置
+spring.kafka.bootstrap-servers=YOUR_KAFKA_HOST:9092
+spring.kafka.consumer.group-id=interview-system-group
+spring.kafka.consumer.auto-offset-reset=earliest
+spring.kafka.consumer.enable-auto-commit=true
+spring.kafka.consumer.auto-commit-interval=1000
+spring.kafka.consumer.key-deserializer=org.apache.kafka.common.serialization.StringDeserializer
+spring.kafka.consumer.value-deserializer=org.apache.kafka.common.serialization.StringDeserializer
+spring.kafka.producer.key-serializer=org.apache.kafka.common.serialization.StringSerializer
+spring.kafka.producer.value-serializer=org.apache.kafka.common.serialization.StringSerializer
+spring.kafka.producer.acks=1
+spring.kafka.producer.retries=3
+spring.kafka.producer.batch-size=16384
+spring.kafka.producer.buffer-memory=33554432
+
+# Redis 配置
+spring.data.redis.host=127.0.0.1
+spring.data.redis.port=6379
+spring.data.redis.password=YOUR_REDIS_PASSWORD
+spring.data.redis.database=0
+spring.data.redis.timeout=3000ms
+spring.data.redis.client-type=jedis
+
+# Jedis连接池配置
+spring.data.redis.jedis.pool.max-active=20
+spring.data.redis.jedis.pool.max-idle=10
+spring.data.redis.jedis.pool.min-idle=5
+spring.data.redis.jedis.pool.max-wait=3000ms
+spring.data.redis.jedis.pool.test-on-borrow=true
+
+# 代码判题模式配置
+code.judge.mode=ai
+judge.hybrid.enabled=true
+judge.hybrid.quality-weight=0.2
+judge.hybrid.max-adjustment=15

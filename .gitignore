@@ -1,0 +1,124 @@
+# ===========================
+# Maven / Spring Boot 后端
+# ===========================
+interview_backend/target/
+interview_backend/.mvn/wrapper/maven-wrapper.jar
+interview_backend/*.jar
+interview_backend/*.war
+interview_backend/*.ear
+interview_backend/*.class
+
+# ===========================
+# Node.js / 前端依赖
+# ===========================
+node_modules/
+interview_frontend/node_modules/
+interview_backend/node_modules/
+package-lock.json
+interview_frontend/package-lock.json
+interview_backend/package-lock.json
+pnpm-lock.yaml
+yarn.lock
+
+# ===========================
+# 前端构建产物
+# ===========================
+interview_frontend/dist/
+interview_frontend/.vite/
+interview_frontend/.cache/
+out/
+
+# ===========================
+# 用户上传文件（运行时生成）
+# ===========================
+uploads/
+interview_backend/uploads/
+interview_frontend/uploads/
+**/uploads/avatars/
+**/uploads/photos/
+**/uploads/logos/
+**/uploads/resumes/
+
+# ===========================
+# 环境变量 / 敏感配置
+# ===========================
+.env
+.env.local
+.env.*.local
+interview_frontend/.env.local
+interview_frontend/.env.production.local
+interview_frontend/.env.development.local
+
+# ===========================
+# IntelliJ IDEA（整个目录）
+# ===========================
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# ===========================
+# VS Code
+# ===========================
+.vscode/
+!.vscode/extensions.json
+
+# ===========================
+# 操作系统生成文件
+# ===========================
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+# Linux
+*~
+
+# ===========================
+# 日志文件
+# ===========================
+*.log
+logs/
+interview_backend/logs/
+
+# ===========================
+# 临时文件
+# ===========================
+*.tmp
+*.temp
+*.swp
+*.swo
+*.bak
+*.orig
+
+# ===========================
+# 证书 / 密钥（安全）
+# ===========================
+*.pem
+*.key
+*.p12
+*.jks
+*.keystore
+
+# ===========================
+# 敏感配置文件
+# ===========================
+interview_backend/src/main/resources/application.properties
+interview_backend/src/main/resources/application-*.properties
+!interview_backend/src/main/resources/application.properties.example
+
+# ===========================
+# 3D 模型大文件
+# ===========================
+*.glb
+*.gltf
+
+# ===========================
+# Serena 工具配置
+# ===========================
+.serena/

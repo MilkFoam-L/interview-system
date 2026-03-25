@@ -1,0 +1,16 @@
+<svg width="96" height="96" viewBox="0 0 96 96" xmlns="http://www.w3.org/2000/svg" fill="none">
+  <!-- Background rounded square with purple gradient -->
+  <defs>
+    <linearGradient id="bgGradient" x1="0" y1="0" x2="96" y2="96" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#7b3ffb"/>
+      <stop offset="100%" stop-color="#a34bfd"/>
+    </linearGradient>
+  </defs>
+  <!-- White background -->
+  <rect x="0" y="0" width="96" height="96" rx="16" fill="#FFFFFF" />
+
+  <!-- Stylised \"N\" shape in gradient purple -->
+  <rect x="26" y="26" width="12" height="44" rx="2" fill="url(#bgGradient)" />
+  <rect x="44" y="26" width="12" height="44" rx="2" fill="url(#bgGradient)" />
+  <path d="M70 26H60V70H70C74.4183 70 78 66.4183 78 62V34C78 29.5817 74.4183 26 70 26Z" fill="url(#bgGradient)" />
+</svg> 
